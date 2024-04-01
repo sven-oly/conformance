@@ -3,7 +3,7 @@
  "title": "ICU Likely subtags verify data description",
  "description": "This documents format of likely subtags verify data",
  "type": "object",
- "additionalProperties": false,
+ "additionalProperties": true,
  "properties": {
    "test_type": {
      "description": "The name of the test",
@@ -80,7 +80,7 @@
      "type": "array",
      "items": {
        "type": "object",
-       "additionalProperties": false,
+       "additionalProperties": true,
        "properties": {
          "label": {
            "description": "A numeric ID, unique for the set of tests",
