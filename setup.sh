@@ -34,7 +34,7 @@ fi
 
 
 function download_67_1() {
-  if [[ ! -f icu4c-71_1-Ubuntu20.04-x64.tgz ]]
+  if [[ ! -f icu4c-67_1-Ubuntu18.04-x64.tgz ]]
   then
     wget https://github.com/unicode-org/icu/releases/download/release-67-1/icu4c-67_1-Ubuntu18.04-x64.tgz
   fi
