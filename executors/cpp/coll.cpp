@@ -128,22 +128,31 @@ auto TestCollator(json_object *json_in) -> string {
 
   Collator *uni_coll = nullptr;
   RuleBasedCollator *rb_coll = nullptr;
+  string gotten_rules_string;
 
+  string uni_rules_string;
   if (!rules_string.empty()) {
-    string uni_rules_string;
     // TODO: Check if this is needed.
     uni_rules.toUTF8String(uni_rules_string);
 
-    // Make sure normalization is consistent
-    rb_coll = new RuleBasedCollator(uni_rules, UCOL_ON, status);
-    if (check_icu_error(status, return_json, "create RuleBasedCollator")) {
-      // Put json_in as the actual input received.
-      json_object_object_add(
-          return_json, "actual_options",
-          json_object_new_string(json_object_get_string(json_in)));
+    // From collationtest.cpp in icu4c!
+    UnicodeString reason;
+    UParseError parseError;
+    rb_coll = new RuleBasedCollator(uni_rules, parseError, reason, status);
+    if (rb_coll == nullptr) {
+      string reason_string;
+      reason.toUTF8String(reason_string);
+      if (check_icu_error(status, return_json, "create RuleBasedCollator")) {
+        // Put json_in as the actual input received.
+        json_object_object_add(
+            return_json, "actual_options",
+            json_object_new_string(json_object_get_string(json_in)));
 
-      return json_object_to_json_string(return_json);
+        return json_object_to_json_string(return_json);
+      }
     }
+    const UnicodeString &used_rules = rb_coll->getRules();
+    used_rules.toUTF8String(gotten_rules_string);
 
     uni_result = rb_coll->compare(us1, us2, status);
     if (check_icu_error(status, return_json, "rb_coll->compare")) {
@@ -234,6 +243,15 @@ auto TestCollator(json_object *json_in) -> string {
     // Test did not succeed!
     // Include data compared in the failing test
     json_object* actual_values = json_object_new_object();
+
+    if (!rules_string.empty()) {
+      /*
+        json_object_object_add(
+          actual_values, "actual_rules", json_object_new_string(uni_rules_string.c_str()));
+      */
+      json_object_object_add(
+          actual_values, "rules_gotten", json_object_new_string(gotten_rules_string.c_str()));
+    }
 
     json_object_object_add(
         actual_values, "s1_actual", json_object_new_string(string1.c_str()));
